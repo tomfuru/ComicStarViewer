@@ -1,0 +1,332 @@
+------------------------------------------------
+ コミケットカタログブラウザ84 データベース仕様書
+------------------------------------------------
+
+◯概要
+
+ コミケットカタログブラウザでは、データベースエンジン SQLite 
+ (http://www.hwaci.com/sw/sqlite/) を利用して情報を管理しています。
+ 本書では DB に含まれる情報テーブルの仕様を定義します。
+
+  ●基本情報
+  ●マスターデータ
+    ・開催日程情報
+    ・地図情報
+    ・地区情報
+    ・ジャンル情報
+    ・ブロック情報
+  ●マップ配置情報
+  ●サークル情報
+
+  ※SQlite は Ver 2.8 系列を使用しています
+
+◯コミケット76での変更点
+
+ ・ComiketCircle に updateFlag カラムを追加
+
+◯コミケット75での変更点
+
+ ・ComiketCircle に updateData カラムを追加
+ ・ComiketCircle に circlems カラムを追加
+ ・ComiketCircle に rss カラムを追加
+
+  ネットワーク更新関連の情報が追加されました
+
+◯コミケット74での変更点
+
+ ・ComiketCircle に updateId カラムを追加
+
+ 　※従来のIDの意味は変更されません（行番号のまま）
+　　 更新情報用のカラムが upate として追加されます。
+
+　   Ver1 形式の保存データでは前者、
+     Ver2 形式では後者で記録されるので注意が必要です
+
+◯テーブル定義
+
+ 注意事項:
+  SQlite では型指定は意味を持ちません。
+  以下のテーブル定義の型指定部分は便宜上のものです。
+
+●表示基本情報
+
+各種表示補正のための情報です。
+CM*.DEF から生成されます。
+
+create table ComiketInfo (
+       comiketNo INTEGER not null,-- コミケ番号
+       comiketName VARCHAR(20),   -- コミケ名称
+       cutSizeW    INTEGER,       -- サークルカット幅
+       cutSizeH    INTEGER,       -- サークルカット高さ
+       cutOriginX INTEGER,	  -- サークルカット原点X
+       cutOriginY INTEGER,	  -- サークルカット原点Y
+       cutOffsetX INTEGER,	  -- サークルカットオフセット(X方向)
+       cutOffsetY INTEGER,	  -- サークルカットオフセット(Y方向)
+       mapSizeW	  INTEGER,	  -- マップ机サイズ幅
+       mapSizeH	  INTEGER,	  -- マップ机サイズ高さ
+       mapOriginX INTEGER,	  -- マップ机表示原点X
+       mapOriginY INTEGER,	  -- マップ机表示原点Y
+       PRIMARY KEY (comiketNo)
+);
+
+●マスターデータ
+
+アプリケーション動作にあたってのマスターデータです。
+マスターデータには、一意かつ連続した IDがわりあてられ、
+アプリケーション中からその ID で配列的に指定することができます。
+
+・開催日程情報
+
+コミケットの開催日程情報です。
+例: 1日目、2日目……
+
+CM*.DEF から生成されます。
+
+create table ComiketDate (
+       comiketNo INTEGER not null, -- コミケ番号
+       id      INTEGER not null,   -- 日程ID(初日が1)
+       year    INTEGER,            -- 年
+       month   INTEGER,            -- 月 
+       day     INTEGER,            -- 日
+       weekday INTEGER,            -- 曜日 (1:日 ～ 7:土)
+       PRIMARY KEY (comiketNo,id)
+);
+
+・地図情報
+
+地図画像ファイルを識別するための情報です。
+例: 東123, 東456 ...
+
+CM*.DEF から生成されます。
+
+create table ComiketMap (
+       comiketNo INTEGER not null, -- コミケ番号
+       id INTEGER not null,	   -- 地図ID
+       name VARCHAR(10),           -- 地図名
+       filename VARCHAR(10),       -- 地図ファイル名基幹部
+       x INTEGER,		   -- 印刷用範囲
+       y INTEGER,		   -- 印刷用範囲
+       w INTEGER,		   -- 印刷用範囲
+       h INTEGER,		   -- 印刷用範囲
+       allFilename VARCHAR(10),    -- 略地図ファイル名基幹部
+       x2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       y2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       w2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       h2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       rotate INTEGER,    -- 配置に対する回転方向 0:正 1:逆\n"
+       PRIMARY KEY (comiketNo,id)
+);
+
+・地区情報
+
+地区の名前と対応する地図の情報です。
+例: 東1,東2,東3,東123壁 ... 
+
+CM*.DEF から生成されます。
+
+create table ComiketArea (
+       comiketNo INTEGER not null, -- コミケ番号
+       id INTEGER not null,        -- 地区ID
+       name VARCHAR(20),           -- 地区名           例:「東1」
+       simpleName VARCHAR(20),     -- 地区名(簡素版)   例:「東」
+       mapId INTEGER not null,     -- 対応地図ID
+       x INTEGER,		   -- 印刷用範囲
+       y INTEGER,		   -- 印刷用範囲
+       w INTEGER,		   -- 印刷用範囲
+       h INTEGER,		   -- 印刷用範囲
+       allFilename VARCHAR(10),    -- 略地図ファイル名基幹部
+       x2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       y2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       w2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       h2 INTEGER,		   -- 印刷用範囲ハイレゾ用
+       PRIMARY KEY (comiketNo,id)
+);
+
+・ブロック情報
+
+ブロックの名前と対応する地区の情報です。
+例: あ、Ａ
+
+CM*.DEF から生成されます。
+
+create table ComiketBlock (
+       comiketNo INTEGER not null, -- コミケ番号
+       id INTEGER not null,        -- ブロックID
+       name CHAR(2),               -- ブロック名
+       areaId INTEGER not null,    -- 対応地区ID
+       PRIMARY KEY (comiketNo,id)
+);
+
+・ジャンル情報
+
+ジャンルの(コード + 名前)情報と対応する地区の情報です。
+例: 200(PCギャルゲ─)
+
+CM*.DEF から生成されます。
+
+create table ComiketGenre (
+       comiketNo INTEGER not null, -- コミケ番号
+       id INTEGER not null,        -- ジャンルID
+       name VARCHAR(10),           -- ジャンル名
+       code INTEGER,               -- ジャンルコード
+       PRIMARY KEY (comiketNo,id)
+);
+
+●マップ配置情報
+
+マップ配置のための情報を格納したテーブルです。
+CM*MAP.TXT から生成されます。
+
+※mapId は結合により取得できるため冗長な情報ですが
+  検索の高速化のために設けられています。
+
+create table ComiketLayout (
+       comiketNo INTEGER not null,	-- コミケ番号	
+       blockId	 INTEGER,		-- ブロックID
+       spaceNo	 INTEGER,		-- スペース番号
+       xpos      INTEGER,		-- マップ上での座標
+       ypos      INTEGER,		-- マップ上での座標
+       layout	 INTEGER,		-- テーブルのレイアウト
+       mapId     INTEGER,               -- マップID
+       PRIMARY KEY (comiketNo, blockID, spaceNo)
+);
+create index ComiketLayoutX on ComiketLayout(comiketNo,xpos);
+create index ComiketLayoutY on ComiketLayout(comiketNo,ypos);
+
+●サークル情報
+
+その回のコミケットに参加しているサークルの情報です。
+CM*.TXT から生成されます。
+
+create table ComiketCircle (
+       comiketNo INTEGER not null, -- コミケ番号
+       id INTEGER not null,        -- サークルID
+       pageNo      INTEGER,        -- ページ番号         漏れの場合は 0
+       cutIndex    INTEGER,        -- カットインデックス 漏れの場合は 0
+       day         INTEGER,        -- 参加日             漏れの場合は 0
+       blockId     INTEGER,        -- ブロックID         漏れの場合は 0
+       spaceNo     INTEGER,        -- スペース番号       漏れの場合は 0
+       spaceNoSub  INTEGER,	   -- スペース番号補助   0:a 1:b
+       genreId     INTEGER,        -- ジャンルID
+       circleName  VARCHAR(33),    -- サークル名
+       circleKana  VARCHAR(33),    -- サークル名(読みがな) 全角カナで正規化
+       penName     VARCHAR(100),   -- 執筆者名
+       bookName    VARCHAR(100),   -- 発行誌名
+       url         VARCHAR(100),   -- URL
+       mailAddr    VARCHAR(100),   -- メールアドレス
+       description VARCHAR(4000),  -- 補足説明
+       memo        VARCHAR(4000),  -- サークルメモ
+       updateId    INTEGER,        -- 更新用ID  
+       updateData  VARCHAR(4000),  -- 更新情報
+       circlems    VARCHAR(100),   -- Circle.ms URL
+       rss         VARCHAR(100),   -- RSS
+       updateFlag  INTEGER,        -- 更新フラグ
+       PRIMARY KEY (comiketNo,id)
+);
+create index ComiketCirclePage on ComiketCircle(pageNo,comiketNo);
+create index ComiketCircleName on ComiketCircle(circleName,comiketNo);
+create index ComiketCircleKana on ComiketCircle(circleKana,comiketNo);
+create index ComiketCirclePenName on ComiketCircle(penName,comiketNo);
+create index ComiketCircleUpdateId on ComiketCircle(updateId,comiketNo);
+
+◯関連SQL
+
+●ジャンプページ番号
+
+ジャンプ処理のためのページ番号はデータベースから特定の条件で抽出して作成されます。
+
+・開催日程ジャンプ情報
+  
+ 該当日程の含まれる一番小さいページとカットインデックスを取得します。
+
+ select day,pageNo,cutIndex from ComiketCircle where comiketNo=%d and pageNo>0
+ group by day having MIN(pageNo,cutIndex) order by day
+
+・ジャンルジャンプ情報
+
+ 該当ジャンルの含まれる一番小さいページとカットインデックスを取得します。
+
+ select genreId,pageNo,cutIndex from ComiketCircle where comiketNo=%d and pageNo>0
+ group by genreId having MIN(pageNo,cutIndex) order by genreId;
+
+・ブロックジャンプ情報
+・地区ジャンプ情報
+
+ 該当ブロック/地区の含まれる一番小さいページとカットインデックスを取得します。
+ 日毎にかわります。
+
+ select blockId,pageNo,cutIndex from ComiketCircle
+ where comiketNo=%d and day=%d and spaceNo=1 and spaceNoSub=0;
+
+ 地区ジャンプ情報はブロックマスタと結合してつくることもできますが、
+ 処理が重いので、ブロックジャンプ用のデータを生成する時にプログラム側で
+ マスターとつきあわせてデータを作成しています。
+
+●ブックマークページ情報
+
+ブックマーク情報の生成に用いられるページ関連情報を取得します。
+
+・ページ関連情報
+
+ ページの先頭と末尾のサークルＩＤを取得します。
+
+ select MIN(id),MAX(id) from ComiketCircle 
+ where comiketNo=%d and pageNo=%d;
+
+ ページで一番多いジャンルIDを取得します。
+
+ select genreId,count(genreId) cnt from ComiketCircle 
+ where comiketNo=%d and pageNo=%d 
+ group by genreId order by cnt desc limit 1;
+
+●マップ印刷情報
+
+ マップ印刷に必要なパラメータを取得します。
+
+・マップグループID
+
+ マップに所属するグループIDを取得します。
+ select b.name from ComiketBlock b, ComiketArea a
+ where b.areaId=a.id AND a.mapId=%d;
+
+・サブマップグループID
+
+ サブマップに所属するグループIDを取得します。先頭のものが壁になります。
+ 壁の判定は、地区指定において地図のサイズが指定されていないことを用いて
+ おこなっています。
+
+ select b.name,l.blockId,MIN(l.spaceNo),MAX(l.spaceNo)
+ from ComiketBlock b, ComiketArea a, ComiketLayout l
+ where b.comiketNo=%d AND a.comiketNo=%d AND l.comiketNo=%d
+ AND b.areaId=a.id AND a.mapId=%d AND l.blockId=b.id
+ AND l.xpos > %d AND l.xpos < %d AND l.ypos > %d and l.ypos < %d 
+ group by l.blockId order by a.w,l.blockId;
+
+●お気に入り処理
+
+・過去情報マッチング その1
+
+ select id,circleName,penName from ComiketCircle
+ WHERE comiketNo=%d  AND ((circleName=?? OR circleKana=??) AND penName=??);
+  
+ ※カナやペンネームは未入力時は使いません
+
+・過去情報マッチング その2
+
+ select id,circleName,penName from ComiketCircle
+ WHERE comiketNo=%d  AND (circleName=?? OR circleKana=?? OR penName=??);
+
+ ※カナやペンネームは未入力時は使いません
+
+□検索処理について
+
+ 正規化検索では次の文字コード変換を行った上で処理が行われています。
+
+  全角英数字   → 全て半角英数字化
+  全角記号     → 対応する半角があるものは半角化。一部同一視
+  小文字       → 全て大文字化
+  ひらがな     → 半角カナ
+  カタカナ     → 半角カナ
+  濁点・半濁点 → 削除
+  長音系       → 全て「-」に置換
+
