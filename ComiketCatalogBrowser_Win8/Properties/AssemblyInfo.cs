@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // アセンブリに関する情報は、次の属性のセットを通して制御されます。
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("ComiketCatalogBrowser_Win8")]
+[assembly: AssemblyTitle("ComicStarViewer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ComiketCatalogBrowser_Win8")]
+[assembly: AssemblyProduct("ComicStarViewer")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

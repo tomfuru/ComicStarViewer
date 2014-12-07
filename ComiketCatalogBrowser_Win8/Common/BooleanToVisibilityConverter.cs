@@ -11,7 +11,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
-namespace ComiketCatalogBrowser_Win8.Common
+namespace ComicStarViewer.Common
 {
     /// <summary>
     /// true を <see cref="Visibility.Visible"/> に、および false を 

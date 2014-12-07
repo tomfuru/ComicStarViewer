@@ -1,7 +1,7 @@
 ﻿using System;
 using Windows.UI.Xaml.Data;
 
-namespace ComiketCatalogBrowser_Win8.Common
+namespace ComicStarViewer.Common
 {
     /// <summary>
     /// true を false に、および false を true に変換する値コンバーター。

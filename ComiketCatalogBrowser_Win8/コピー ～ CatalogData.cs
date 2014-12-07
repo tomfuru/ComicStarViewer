@@ -10,7 +10,7 @@ using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
 
-namespace ComiketCatalogBrowser_Win8 {
+namespace ComicStarViewer {
     public class CatalogData_old {
 
         private const string DATA_FOLDER_NAME = "Data";

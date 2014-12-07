@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows 8
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComiketCatalogBrowser_Win8", "ComiketCatalogBrowser_Win8\ComiketCatalogBrowser_Win8.csproj", "{79EF5FB8-8AE9-46F9-8F36-B4755E43ECAF}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComicStarViewer", "ComiketCatalogBrowser_Win8\ComicStarViewer.csproj", "{79EF5FB8-8AE9-46F9-8F36-B4755E43ECAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsBlogReader", "WindowsBlogReader\WindowsBlogReader.csproj", "{8062A157-37AB-4BE0-B817-C80F1CF7420A}"
 EndProject

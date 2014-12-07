@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Navigation;
 
 // 空のアプリケーション テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234227 を参照してください
 
-namespace ComiketCatalogBrowser_Win8
+namespace ComicStarViewer
 {
     /// <summary>
     /// 既定の Application クラスを補完するアプリケーション固有の動作を提供します。

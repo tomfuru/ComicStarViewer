@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Documents;
 
-namespace ComiketCatalogBrowser_Win8.Common
+namespace ComicStarViewer.Common
 {
     /// <summary>
     /// <see cref="RichTextBlock"/> のラッパーは、使用可能なコンテンツに合わせて、

@@ -10,11 +10,11 @@ using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.Storage.Search;
 using SQLite;
-using ComiketCatalogBrowser_Win8;
+using ComicStarViewer;
 using System.Diagnostics;
 
 
-namespace ComiketCatalogBrowser_Win8 {
+namespace ComicStarViewer {
     public class CatalogData {
 
         private const string REG_DB_FILE_NAME = @"^ccatalog\d+\.db$";

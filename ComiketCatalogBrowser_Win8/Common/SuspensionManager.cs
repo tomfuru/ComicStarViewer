@@ -11,7 +11,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace ComiketCatalogBrowser_Win8.Common
+namespace ComicStarViewer.Common
 {
     /// <summary>
     /// SuspensionManager は、グローバル セッション状態をキャプチャし、アプリケーションのプロセス継続時間管理を簡略化します。
