@@ -1,0 +1,18 @@
+﻿<Application
+    x:Class="ComicStarViewer.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ComicStarViewer">
+
+    <Application.Resources>
+
+        <!--アプリケーション固有のリソース -->
+
+        <x:String x:Key="AppName">ComicStarViewer</x:String>
+
+        <Style x:Key="TextBlockLinkStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Blue" />
+        </Style>
+    </Application.Resources>
+
+</Application>

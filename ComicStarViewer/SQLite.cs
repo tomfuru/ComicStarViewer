@@ -1874,7 +1874,8 @@ namespace SQLite
 
 		Sqlite3Statement Prepare()
 		{
-			var stmt = SQLite3.Prepare2 (_conn.Handle, CommandText);
+            //var stmt = SQLite3.Prepare2(_conn.Handle, CommandText);
+            var stmt = SQLite3.Prepare16_2(_conn.Handle, CommandText);
 			BindAll (stmt);
 			return stmt;
 		}
@@ -2611,18 +2612,32 @@ namespace SQLite
 		[DllImport("sqlite3", EntryPoint = "sqlite3_changes", CallingConvention=CallingConvention.Cdecl)]
 		public static extern int Changes (IntPtr db);
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_prepare_v2", CallingConvention=CallingConvention.Cdecl)]
-		public static extern Result Prepare2 (IntPtr db, [MarshalAs(UnmanagedType.LPStr)] string sql, int numBytes, out IntPtr stmt, IntPtr pzTail);
+        [DllImport("sqlite3", EntryPoint = "sqlite3_prepare_v2", CallingConvention = CallingConvention.Cdecl)]
+        public static extern Result Prepare2(IntPtr db, [MarshalAs(UnmanagedType.LPStr)] string sql, int numBytes, out IntPtr stmt, IntPtr pzTail);
 
-		public static IntPtr Prepare2 (IntPtr db, string query)
-		{
-			IntPtr stmt;
-			var r = Prepare2 (db, query, query.Length, out stmt, IntPtr.Zero);
-			if (r != Result.OK) {
-				throw SQLiteException.New (r, GetErrmsg (db));
-			}
-			return stmt;
-		}
+        [DllImport("sqlite3", EntryPoint = "sqlite3_prepare16_v2", CallingConvention = CallingConvention.Cdecl)]
+        public static extern Result Prepare16_2(IntPtr db, [MarshalAs(UnmanagedType.LPWStr)] string sql, int numBytes, out IntPtr stmt, IntPtr pzTail);
+
+        public static IntPtr Prepare2(IntPtr db, string query) {
+            IntPtr stmt;
+            var r = Prepare2(db, query, query.Length, out stmt, IntPtr.Zero);
+            if (r != Result.OK) {
+                throw SQLiteException.New(r, GetErrmsg(db));
+            }
+            return stmt;
+        }
+
+        public static IntPtr Prepare16_2(IntPtr db, string query) {
+            IntPtr stmt;
+
+            int length = System.Text.Encoding.Unicode.GetByteCount(query);
+
+            var r = Prepare16_2(db, query, length, out stmt, IntPtr.Zero);
+            if (r != Result.OK) {
+                throw SQLiteException.New(r, GetErrmsg(db));
+            }
+            return stmt;
+        }
 
 		[DllImport("sqlite3", EntryPoint = "sqlite3_step", CallingConvention=CallingConvention.Cdecl)]
 		public static extern Result Step (IntPtr stmt);

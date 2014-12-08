@@ -1,0 +1,634 @@
+﻿<Page
+    x:Name="pageRoot"
+    x:Class="ComicStarViewer.MainPage"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ComicStarViewer"
+    xmlns:common="using:ComicStarViewer.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <x:String x:Key="Uninitialized">(データなし)</x:String>
+
+        <Style x:Key="TextBlockTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontFamily" Value="MS UI Gothic" />
+            <Setter Property="Margin" Value="0,5"/>
+        </Style>
+        <Style x:Key="TextBlockContentStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontFamily" Value="MS UI Gothic" />
+        </Style>
+
+        <Style x:Key="TextBlockContentLinkStyle" TargetType="TextBlock" BasedOn="{StaticResource TextBlockLinkStyle}">
+            <Setter Property="FontSize" Value="20" />
+        </Style>
+
+        <CollectionViewSource
+            x:Name="itemsViewSource"
+            Source="{Binding Data.Items}"/>
+
+        <CollectionViewSource
+            x:Name="itemsViewSource_cl1"
+            Source="{Binding Data.CircleList_Day1_Sorted}"/>
+
+        <CollectionViewSource
+            x:Name="itemsViewSource_cl2"
+            Source="{Binding Data.CircleList_Day2_Sorted}"/>
+
+        <CollectionViewSource
+            x:Name="itemsViewSource_cl3"
+            Source="{Binding Data.CircleList_Day3_Sorted}"/>
+
+        <CollectionViewSource
+            x:Name="itemsViewSource_clu"
+            Source="{Binding Data.CircleList_Unknown_Sorted}"/>
+
+        <CollectionViewSource
+            x:Name="itemsViewSource_colors"
+            Source="{Binding Data.CheckList.ColorInfo}"/>
+
+        <CollectionViewSource
+            x:Name="itemsViewSource_bookmarks"
+            Source="{Binding Bookmark.Data}"/>
+
+        <Flyout x:Name="flyout_completeMessage" x:Key="flyout_completeMessage" Placement="Bottom">
+            <TextBlock Text="Completed" />
+        </Flyout>
+
+        <Flyout x:Name="flyout_failedMessage" x:Key="flyout_failedMessage" Placement="Bottom">
+            <TextBlock Foreground="Red" Text="Failed" />
+        </Flyout>
+
+        <!-- 地図表示Flyout -->
+        <Flyout x:Name="flyout_map" x:Key="flyout_map" Placement="Full">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="ScrollViewer.ZoomMode" Value="Enabled"/>
+                    <Setter Property="BorderBrush" Value="Gray"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="MinHeight" Value="500"/>
+                    <Setter Property="MinWidth" Value="500"/>
+                    <Setter Property="MaxWidth" Value="1200"/>
+                    <Setter Property="MaxHeight" Value="600"/>
+                    <Setter Property="Width" Value="1000" />
+                    <Setter Property="Height" Value="600" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Rectangle Grid.Row="0"
+                           VerticalAlignment="Top" HorizontalAlignment="Left"
+                           Opacity="0.8"
+                           Fill="Red"
+                           Width="{Binding Data.MapCircleWidth}" Height="{Binding Data.MapCircleHeight}"
+                           Margin="{Binding Data.MapSelectedMargin}"/>
+                <Image Grid.Row="0" x:Name="mapImage" Stretch="None" Source="{Binding Data.MapImage}"/>
+            </Grid>
+        </Flyout>
+
+        <!-- チェックリスト詳細情報表示Flyout -->
+        <Flyout x:Name="flyout_checklist" x:Key="checklist" Placement="Left" Closed="flyout_checklist_Closed">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="Background" Value="LightPink" />
+                    <Setter Property="BorderBrush" Value="Gray"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="MinHeight" Value="600"/>
+                    <Setter Property="MinWidth" Value="900"/>
+                    <Setter Property="MaxWidth" Value="900"/>
+                    <Setter Property="MaxHeight" Value="600"/>
+                    <Setter Property="Width" Value="900" />
+                    <Setter Property="Height" Value="600" />
+                    <Setter Property="Margin" Value="100,0,0,0" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+            <Grid>
+                <Grid.Resources>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="400" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Row="2" Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="215" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="並び始め" Margin="20" FontSize="20" />
+                    <Button x:Name="btnTimeRecord_並び始め" Grid.Row="1" Grid.Column="1" Content="記録" Margin="20" Click="buttonTimeRecord_Click" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Data.SelectedCheckListItemTime_startLine, TargetNullValue={StaticResource Uninitialized}}" Margin="20" FontSize="20" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="購入完了" Margin="20" FontSize="20" />
+                    <Button x:Name="btnTimeRecord_購入完了" Grid.Row="2" Grid.Column="1" Content="記録" Margin="20" Click="buttonTimeRecord_Click" />
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Data.SelectedCheckListItemTime_bought, TargetNullValue={StaticResource Uninitialized}}" Margin="20"  FontSize="20" />
+
+                    <Button Grid.Row="3" Grid.Column="0" Content="元に戻す" Click="buttonUndoTime_Click" />
+
+                    <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" AcceptsReturn="True" Text="{Binding Data.SelectedCheckListItemMemo, Mode=TwoWay}" Height="60" Margin="10" />
+                </Grid>
+
+                <StackPanel Grid.Row="0" Grid.Column="2">
+                    <TextBlock Text="チェックリストメモ" Margin="10" />
+                    <TextBox AcceptsReturn="True" Text="{Binding Data.SelectedCheckListItem.Memo, Mode=TwoWay}" Height="200" TextWrapping="Wrap" Margin="10" />
+                </StackPanel>
+
+                <Border Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" BorderBrush="Black" BorderThickness="1" Margin="10" />
+
+                <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" VerticalAlignment="Stretch" BorderBrush="Black" BorderThickness="1" Margin="10" />
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Left" Margin="0,0,10,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Image HorizontalAlignment="Left" Width="105" Height="150" Source="{Binding Data.MapSelectedCircleCut}" />
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="10">
+                                <Rectangle VerticalAlignment="Center" Width="20" Height="20" Fill="{Binding Data.SelectedCheckListItem.Color}"/>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Data.SelectedCheckListItem.ColorDescription}" FontSize="20" Margin="10,0,0,5" />
+                            </StackPanel>
+                            <TextBlock VerticalAlignment="Top" Text="{Binding Data.SelectedCheckListItem.SpaceStr}" Style="{StaticResource TextBlockContentStyle}" FontSize="30" Margin="10" />
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>サークル名</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.SelectedCheckListItem.CircleName}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockContentStyle}">
+                        <Run Text="("/>
+                        <Run Text="{Binding Data.SelectedCheckListItem.CircleKana}" />
+                        <Run Text=")" />
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>発行誌名</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.SelectedCheckListItem.BookName}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>執筆者名</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.SelectedCheckListItem.PenName}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>補足</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.SelectedCheckListItem.Description}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>その他</Underline>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource TextBlockContentLinkStyle}" Tapped="myHyperLink_Tapped">
+                        <Underline>
+                            <Run Text="{Binding Data.SelectedCheckListItem.URL}" />
+                        </Underline>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource TextBlockContentLinkStyle}" Tapped="myHyperLink_Tapped">
+                        <Underline>
+                            <Run Text="{Binding Data.SelectedCheckListItem.Url_Circlems}" />
+                        </Underline>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Flyout>
+
+        <!-- WebブラウザFlyout -->
+        <Flyout x:Name="flyout_webview" Placement="Full">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="BorderBrush" Value="Gray"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="MinHeight" Value="500"/>
+                    <Setter Property="MinWidth" Value="500"/>
+                    <Setter Property="MaxWidth" Value="1200"/>
+                    <Setter Property="MaxHeight" Value="700"/>
+                    <Setter Property="Width" Value="1000" />
+                    <Setter Property="Height" Value="700" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock FontSize="20" Grid.Row="0">
+                    <Hyperlink NavigateUri="{Binding HyperLinkURL}">
+                        <Run Text="ブラウザで開く" />
+                    </Hyperlink>
+                </TextBlock>
+                <ProgressBar Grid.Row="1" x:Name="processWeb" IsIndeterminate="True" Visibility="Collapsed" />
+                <WebView Grid.Row="2" x:Name="webView" Margin="0,5,0,0"  NavigationStarting="webView_NavigationStarting"  NavigationCompleted="webView_NavigationCompleted"/>
+            </Grid>
+        </Flyout>
+
+        <!-- チェックリスト色選択コンボボックス用DataTemplate -->
+        <DataTemplate x:Key="CheckListColorTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Rectangle Width="15" Height="15" Fill="{Binding Color}" />
+                <TextBlock Text="{Binding ColorDescription}" Margin="10,0,0,0" />
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- (新規追加時用)チェックリスト色選択Flyout -->
+        <Flyout x:Name="flyoutCheckListColorSelect" x:Key="flyoutCheckListColorSelect">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ComboBox Grid.Row="0" x:Name="comboColorSelect" ItemsSource="{Binding Source={StaticResource itemsViewSource_colors}}" ItemTemplate="{StaticResource CheckListColorTemplate}" Margin="10" />
+                <Button Grid.Row="1" Content="Add CheckList" Click="buttonAddCheckList_Click" Margin="10" />
+            </Grid>
+        </Flyout>
+
+        <!-- (色変更時用)チェックリスト色選択Flyout -->
+        <Flyout x:Name="flyoutCheckListColorSelect2" x:Key="flyoutCheckListColorSelect2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ComboBox Grid.Row="0" x:Name="comboColorSelect2" ItemsSource="{Binding Source={StaticResource itemsViewSource_colors}}" ItemTemplate="{StaticResource CheckListColorTemplate}" Margin="10" />
+                <Button Grid.Row="1" Content="Select" Click="buttonChangeColor_Click" Margin="10" />
+            </Grid>
+        </Flyout>
+
+        <!-- チェックリスト項目MenuFlyout -->
+        <MenuFlyout x:Name="flyout_checkListMenu" x:Key="flyout_checkListMenu">
+            <MenuFlyoutItem Text="削除" Click="flyout_checkListmenu_Delete" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="色の変更" Click="flyout_checkListmenu_ChangeColor" />
+            <MenuFlyoutItem Text="移動" Click="flyout_checkListmenu_Move" />
+        </MenuFlyout>
+
+        <!-- ブックマークFlyout -->
+        <Flyout x:Name="flyoutBookmarks" x:Key="flyoutBookmarks">
+            <Grid>
+                <Grid.Resources>
+                    <Style x:Key="listViewBookmarksStyle" TargetType="ListView">
+                        <Setter Property="IsSwipeEnabled" Value="False" />
+                        <Setter Property="IsTapEnabled" Value="True" />
+                        <Setter Property="SelectionMode" Value="Single" />
+                        <Setter Property="ScrollViewer.IsVerticalRailEnabled" Value="True" />
+                        <Setter Property="ScrollViewer.VerticalScrollMode" Value="Auto" />
+                    </Style>
+                    <DataTemplate x:Key="BookMarkItem">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="15">
+                                <Run Text="{Binding Name}" />
+                                <Run Text=" " />
+                                <Run Text="{Binding DayBase1}" />
+                                <Run Text="日目 " />
+                                <Run Text="{Binding Area}" />
+                                <Run Text=" " />
+                                <Run Text="{Binding Block}" />
+                                <Run Text=" " />
+                                <Run Text="{Binding Index}" />
+                            </TextBlock>
+                            <!--<Button Content="削除" Click="bookmarkRemoveButton_Click" Tag="{RelativeSource }" />-->
+                        </StackPanel>
+                    </DataTemplate>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0" Width="300" Height="300" IsVerticalRailEnabled="True" VerticalScrollMode="Auto">
+                    <ListView Grid.Row="0" x:Name="listViewBookmarks"
+                              IsItemClickEnabled="True"
+                              IsTapEnabled="False"
+                              SelectionMode="None"
+                              Style="{StaticResource listViewBookmarksStyle}"
+                              ItemsSource="{Binding Source={StaticResource itemsViewSource_bookmarks}}"
+                              ItemTemplate="{StaticResource BookMarkItem}"
+                              ItemClick="listViewBookmarks_ItemClick"/>
+                </ScrollViewer>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" FontSize="15" Text="現在位置を追加" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <TextBox x:Name="textBookmarkName" Width="200" />
+                        <Button  Content="追加" Click="bookmarkAddButton_Click" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Flyout>
+    </Page.Resources>
+
+    <Page.TopAppBar>
+        <AppBar x:Name="appbar_top">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <!-- ブックマークボタン -->
+                    <AppBarButton HorizontalAlignment="Stretch" Label="Bookmark" VerticalAlignment="Stretch" Click="bookmarkButton_Click" >
+                        <AppBarButton.Icon>
+                            <SymbolIcon Symbol="Bookmarks" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <!-- 検索画面遷移ボタン -->
+                    <AppBarButton HorizontalAlignment="Stretch" Label="Search" VerticalAlignment="Stretch" Click="searchButton_Click">
+                        <AppBarButton.Icon>
+                            <SymbolIcon Symbol="Find" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </StackPanel>
+            </Grid>
+        </AppBar>
+    </Page.TopAppBar>
+
+    <Page.BottomAppBar>
+        <AppBar x:Name="appbar_bottom">
+            <StackPanel Orientation="Horizontal">
+                <!-- カタログデータ読み込み画面遷移ボタン -->
+                <AppBarButton HorizontalAlignment="Stretch" Label="Import Data" VerticalAlignment="Stretch"  Click="importDataButton_Click">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Import" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <!-- チェックリスト読み込みボタン -->
+                <AppBarButton HorizontalAlignment="Stretch" Label="Import CheckList" VerticalAlignment="Stretch"  Click="importCheckList_Click">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Import" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <!-- チェックリスト保存ボタン -->
+                <AppBarButton HorizontalAlignment="Stretch" Label="Save CheckList As..." IsEnabled="{Binding Data.IsValidCheckList}" VerticalAlignment="Stretch" Click="saveCheckListAs_Click">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Save" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <!-- チェックリスト消去ボタン -->
+                <AppBarButton HorizontalAlignment="Stretch" Label="Clear CheckList" IsEnabled="{Binding Data.IsValidCheckList}" VerticalAlignment="Stretch" Click="clearCheckList_Click">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Clear" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+
+            </StackPanel>
+        </AppBar>
+    </Page.BottomAppBar>
+
+    <Grid x:Name="topGrid" Background="{StaticResource ApplicationPageBackgroundThemeBrush}" FlyoutBase.AttachedFlyout="{StaticResource flyout_map}">
+        <Grid.Resources>
+            <DataTemplate x:Key="DefaultGridItemTemplate">
+                <Canvas Width="105" Height="150" Background="White"  RightTapped="gridItem_RightTapped" Holding="gridItem_Holding">
+                    <Image Source="{Binding Image}" Stretch="Fill" Canvas.Left="0" Canvas.Top="0" Canvas.ZIndex="0"/>
+                    <Rectangle Canvas.Left="4" Canvas.Top="4" Width="24" Height="24" Canvas.ZIndex="1" Fill="{Binding CheckListColor}" />
+                    <TextBlock Text="{Binding Text}"
+                           Canvas.Left="5" Canvas.Top="0" Canvas.ZIndex="2"
+                           Width="40" Height="30"
+                           FontSize="13" Foreground="Black"
+                           Style="{StaticResource BaseTextBlockStyle}"
+                           FontFamily="Yu Gothic"/>
+                </Canvas>
+            </DataTemplate>
+        </Grid.Resources>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal" FlowDirection="LeftToRight" Margin="10">
+                <ComboBox x:Name="comboDayOfWeek" Header="Day" ItemsSource="{Binding Data.DayOfWeek_Data}" SelectionChanged="comboDayOfWeek_SelectionChanged" Width="150" Margin="10" IsEnabled="False" />
+                <ComboBox x:Name="comboArea" Header="Area" ItemsSource="{Binding Data.Area_Data}" SelectionChanged="comboArea_SelectionChanged" Width="100" Margin="10" IsEnabled="False" />
+                <ComboBox x:Name="comboBlock" Header="Block" ItemsSource="{Binding Data.Block_Data}" SelectionChanged="comboBlock_SelectionChanged" Width="100" Margin="10" IsEnabled="False" />
+                <ComboBox x:Name="comboGenre" Header="Genre" ItemsSource="{Binding Data.Genre_Data}" SelectionChanged="comboGenre_SelectionChanged" Width="200" Margin="10" IsEnabled="False" />
+                <Button VerticalAlignment="Bottom" Content="Map" Flyout="{StaticResource flyout_map}" Margin="10" />
+            </StackPanel>
+
+            <!--<ListView
+            Grid.Row="1" 
+            x:Name="listThumb"
+            SelectionMode="Single"
+            SelectionChanged="listThumb_SelectionChanged"
+            IsItemClickEnabled="True"
+            ItemsSource="{Binding Source={StaticResource itemsViewSource}}"
+            ItemTemplate="{StaticResource DefaultListItemTemplate}"
+                
+        />-->
+
+            <!--ItemsSource="{Binding Source={StaticResource itemsViewSource}}"-->
+            <GridView
+    			Grid.Row="1" 
+    			x:Name="gridThumb"
+                IsSwipeEnabled="False"
+                IsRightTapEnabled="False"
+                IsTapEnabled="True"
+    			SelectionMode="Single"                
+    			SelectionChanged="gridThumb_SelectionChanged"
+                ItemsSource="{Binding Data.Items}"
+                ItemTemplate="{StaticResource DefaultGridItemTemplate}">
+                <GridView.ItemContainerStyle>
+                    <Style TargetType="FrameworkElement">
+                        <Setter Property="Margin" Value="-3" />
+                    </Style>                    
+                </GridView.ItemContainerStyle>
+            </GridView>
+        </Grid>
+
+        <Border Grid.Column="1" BorderBrush="Silver" BorderThickness="1" />
+        <Grid x:Name="gridViewgrid" Grid.Column="2" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Margin="10,0,0,0">
+                <StackPanel HorizontalAlignment="Left" Margin="5,10">
+                    <TextBlock Text="{Binding Data.Detail.Place}"  Style="{StaticResource TextBlockContentStyle}" FontSize="30" />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>サークル名</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.Detail.CircleName}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockContentStyle}">
+                        <Run Text="("/>
+                        <Run Text="{Binding Data.Detail.CircleKana}" />
+                        <Run Text=")" />
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>発行誌名</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.Detail.BookName}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>ジャンル</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.Detail.Genre}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>執筆者名</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.Detail.PenName}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>補足</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.Detail.Description}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockTitleStyle}">
+                            <Underline>その他</Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.Detail.Mail}" Style="{StaticResource TextBlockContentStyle}"  />
+                    <TextBlock Style="{StaticResource TextBlockContentLinkStyle}" Tapped="myHyperLink_Tapped">
+                        <Underline>
+                            <Run Text="{Binding Data.Detail.URL}" />
+                        </Underline>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource TextBlockContentLinkStyle}" Tapped="myHyperLink_Tapped">
+                        <Underline>
+                            <Run Text="{Binding Data.Detail.Url_Circlems}" />
+                        </Underline>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Data.Detail.Memo}" Style="{StaticResource TextBlockContentStyle}"  />
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Row="1" BorderBrush="Silver" BorderThickness="1" />
+
+            <Grid Grid.Row="2">
+                <Grid.Resources>
+                    <local:SortingTypesToStringsConverter x:Key="sortTypesToStrsConv" />
+                    <local:SortingTypeToStringConverter x:Key="sortTypeToStrConv" />
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,5,5,0">
+                    <TextBlock Text="ソート：" FontSize="20" VerticalAlignment="Center" />
+                    <ComboBox x:Name="combtype" ItemsSource="{Binding Data.SortTypes, Converter={StaticResource sortTypesToStrsConv}}" SelectedValue="{Binding Data.SelectedSortType, Mode=TwoWay, Converter={StaticResource sortTypeToStrConv}}" Width="130" SelectionChanged="comboSortType_SelectionChanged" />
+                </StackPanel>
+
+                <FlipView x:Name="flipView_checkList" Grid.Row="1" SelectionChanged="flipView_checkList_SelectionChanged">
+                    <FlipView.Resources>
+                        <Style x:Key="checkListViewStyle" TargetType="ListView">
+                            <Setter Property="IsSwipeEnabled" Value="False" />
+                            <Setter Property="IsTapEnabled" Value="True" />
+                            <Setter Property="SelectionMode" Value="Single" />
+                            <Setter Property="ScrollViewer.IsVerticalRailEnabled" Value="True" />
+                            <Setter Property="ScrollViewer.VerticalScrollMode" Value="Auto" />
+                        </Style>
+
+                        <DataTemplate x:Key="CheckListCircleData">
+                            <Grid Height="40" Margin="5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Width="10" VerticalAlignment="Stretch" Fill="{Binding Color}" Margin="0,0,5,0" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Text="{Binding CircleInfo}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text ="{Binding Memo}" />
+                            </Grid>
+                        </DataTemplate>
+                    </FlipView.Resources>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Style="{StaticResource BaseTextBlockStyle}" FontSize="20" Margin="5">
+                        <Underline>CheckList 1日目</Underline>
+                        </TextBlock>
+                        <ListView x:Name="listViewCheckList_1" Grid.Row="1"
+                                  Style="{StaticResource checkListViewStyle}"
+                                  ItemsSource="{Binding Source={StaticResource itemsViewSource_cl1}}"
+                                  ItemTemplate="{StaticResource CheckListCircleData}"
+                                  SelectionChanged="listViewCheckList_SelectionChanged"
+                                  DoubleTapped="listViewCheckList_DoubleTapped" 
+                                  Holding="listViewCheckList_Holding"
+                                  RightTapped="listViewCheckList_RightTapped" />
+                    </Grid>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Style="{StaticResource BaseTextBlockStyle}" FontSize="20" Margin="5">
+                        <Underline>CheckList 2日目</Underline>
+                        </TextBlock>
+                        <ListView x:Name="listViewCheckList_2" Grid.Row="1"
+                                  Style="{StaticResource checkListViewStyle}"
+                                  ItemsSource="{Binding Source={StaticResource itemsViewSource_cl2}}"
+                                  ItemTemplate="{StaticResource CheckListCircleData}"
+                                  SelectionChanged="listViewCheckList_SelectionChanged"
+                                  DoubleTapped="listViewCheckList_DoubleTapped"
+                                  Holding="listViewCheckList_Holding"
+                                  RightTapped="listViewCheckList_RightTapped" />
+                    </Grid>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Style="{StaticResource BaseTextBlockStyle}" FontSize="20" Margin="5">
+                        <Underline>CheckList 3日目</Underline>
+                        </TextBlock>
+                        <ListView x:Name="listViewCheckList_3" Grid.Row="1"
+                                  Style="{StaticResource checkListViewStyle}"
+                                  ItemsSource="{Binding Source={StaticResource itemsViewSource_cl3}}"
+                                  ItemTemplate="{StaticResource CheckListCircleData}"
+                                  SelectionChanged="listViewCheckList_SelectionChanged"
+                                  DoubleTapped="listViewCheckList_DoubleTapped"
+                                  Holding="listViewCheckList_Holding"
+                                  RightTapped="listViewCheckList_RightTapped" />
+                    </Grid>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Style="{StaticResource BaseTextBlockStyle}" FontSize="20" Margin="5">
+                        <Underline>CheckList 認識失敗</Underline>
+                        </TextBlock>
+                        <ListView x:Name="listViewCheckList_Unknown" Grid.Row="1"
+                                  Style="{StaticResource checkListViewStyle}"
+                                  ItemsSource="{Binding Source={StaticResource itemsViewSource_clu}}"
+                                  ItemTemplate="{StaticResource CheckListCircleData}" 
+                                  SelectionChanged="listViewCheckList_Unknown_SelectionChanged"/>
+                    </Grid>
+                </FlipView>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
