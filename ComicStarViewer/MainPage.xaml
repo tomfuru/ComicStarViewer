@@ -211,6 +211,32 @@
             </Grid>
         </Flyout>
 
+        <!--認証用Webview-->
+        <Flyout x:Name="flyout_webview_auth" Placement="Full">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="BorderBrush" Value="Gray"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="MinHeight" Value="500"/>
+                    <Setter Property="MinWidth" Value="500"/>
+                    <Setter Property="MaxWidth" Value="1200"/>
+                    <Setter Property="MaxHeight" Value="700"/>
+                    <Setter Property="Width" Value="1000" />
+                    <Setter Property="Height" Value="700" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ProgressBar Grid.Row="1" x:Name="processWeb_auth" IsIndeterminate="True" Visibility="Collapsed" />
+                <WebView Grid.Row="2" x:Name="webView_auth" Margin="0,5,0,0"  NavigationStarting="webView_auth_NavigationStarting"  NavigationCompleted="webView_auth_NavigationCompleted"/>
+            </Grid>
+        </Flyout>
+        
         <!-- WebブラウザFlyout -->
         <Flyout x:Name="flyout_webview" Placement="Full">
             <Flyout.FlyoutPresenterStyle>

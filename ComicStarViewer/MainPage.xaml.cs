@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -151,6 +152,14 @@ namespace ComicStarViewer
             this.defaultViewModel["Data"] = _myModelView;
             this.defaultViewModel["Bookmark"] = _bookmark;
 
+            bool opened = await _myModelView.Initialize();
+
+            if (!_myModelView.WebCatalogData.Authorized) {
+                flyout_webview_auth.ShowAt(this);
+                webView_auth.Navigate(new Uri(_myModelView.WebCatalogData.GetAuthorizeURL()));
+            }
+
+            /*
             if (await CatalogData.checkExistFiles()) {
                 bool opened = await _myModelView.Initialize();
                 if (opened) {
@@ -175,7 +184,7 @@ namespace ComicStarViewer
 
                     comboDayOfWeek.IsEnabled = comboArea.IsEnabled = comboBlock.IsEnabled = comboGenre.IsEnabled = true;
                 }
-            }
+            }*/
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -516,11 +525,37 @@ namespace ComicStarViewer
         }
         #endregion (myHyperLink_Tapped)
         //-------------------------------------------------------------------------------
+        #region webView_auth_NavigationStarting
+        //-------------------------------------------------------------------------------
+        //
+        private void webView_auth_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args) {
+            processWeb_auth.Visibility = Windows.UI.Xaml.Visibility.Visible;
+        }
+        #endregion (webView_NavigationStarting)
+        //-------------------------------------------------------------------------------
+        #region webView_auth_NavigationCompleted
+        //-------------------------------------------------------------------------------
+        //
+        private async void webView_auth_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args) {
+            processWeb_auth.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
+            Regex reg = new Regex("code=(?<token>.*?)&",
+                    RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            var match = reg.Match(args.Uri.ToString());
+
+            if (match.Success) {
+                var code = match.Groups["token"].Value;
+                await _myModelView.WebCatalogData.Authorize(code);
+
+                flyout_webview_auth.Hide();
+            }
+        }
+        #endregion (webView_NavigationCompleted)
+        //-------------------------------------------------------------------------------
         #region webView_NavigationStarting
         //-------------------------------------------------------------------------------
         //
-        private void webView_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args)
-        {
+        private void webView_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args) {
             processWeb.Visibility = Windows.UI.Xaml.Visibility.Visible;
         }
         #endregion (webView_NavigationStarting)
@@ -528,8 +563,7 @@ namespace ComicStarViewer
         #region webView_NavigationCompleted
         //-------------------------------------------------------------------------------
         //
-        private void webView_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)
-        {
+        private void webView_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args) {
             processWeb.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
         }
         #endregion (webView_NavigationCompleted)

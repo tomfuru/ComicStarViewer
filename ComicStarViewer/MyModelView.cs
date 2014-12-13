@@ -19,6 +19,7 @@ namespace ComicStarViewer {
     //-------------------------------------------------------------------------------
     class MyModelView : INotifyPropertyChanged {
         public CatalogData CatalogData { get; private set; }
+        public WebCatalogData WebCatalogData { get; private set; }
         private VirtualizedCirclesList _vlist = null;
 
         //-------------------------------------------------------------------------------
@@ -83,20 +84,22 @@ namespace ComicStarViewer {
         //
         public async Task<bool> Initialize()
         {
+            WebCatalogData = new WebCatalogData();
             // カタログオープン
             CatalogData = await CatalogData.OpenCatalogData();
-
+            
             if (CatalogData == null) { return false; }
 
             // チェックリストを空で初期化
             var info = await CatalogData.GetComiketInfo();
             CheckList = new CheckList(info.comiketNo);
             CheckList.PropertyChanged += CheckList_PropertyChanged;
-
+            /*
             // 既存ファイルがある場合は開く
             if (await CheckList.CheckExistCheckList()) {
                 await this.OpenCheckList(await CheckList.OpenExistCheckList());
             }
+            */
 
             OnPropertyChanged(new PropertyChangedEventArgs("CheckList"));
 
